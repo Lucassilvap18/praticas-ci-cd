@@ -3,6 +3,10 @@ pipeline {
     // O pipeline pode rodar em qualquer agente disponível no Jenkins
     agent any
 
+    tools {
+        nodejs "node18"
+    }
+
     environment {
         // Nome da imagem no DockerHub (mude para seu usuário e nome)
         DOCKERHUB_REPO = "lucasdev18/my-node-app"
