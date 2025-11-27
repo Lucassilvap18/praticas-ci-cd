@@ -1,42 +1,31 @@
-// Jenkinsfile (Sintaxe Declarativa)
+// Jenkinsfile (Usando a imagem Node.js)
 
 pipeline {
-    agent any // Roda em qualquer agente disponível
+    // Define que o Pipeline será executado dentro de um container Node.js
+    agent { 
+        docker { 
+            image 'node:20.11.1-alpine' // Imagem oficial com Node e NPM
+            // Mapeia o diretório de trabalho do Jenkins para o container
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock' 
+        } 
+    }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                // 1. Clona o código do repositório
-                checkout scm 
-            }
-        }
+        // ... (Checkout Code) ...
         stage('Install Dependencies') {
             steps {
-                echo 'Instalando dependências do Node.js...'
-                // 2. Instala os módulos Node (dev e prod)
+                echo 'Instalando dependências do Node.js dentro do container Node...'
+                // O comando 'npm' AGORA funciona, pois está no PATH da imagem 'node:...'
                 sh 'npm install'
             }
         }
         stage('Run Unit Tests') {
             steps {
                 echo 'Rodando testes de CI (jest)...'
-                // 3. Executa o script de teste definido no package.json
                 sh 'npm test'
             }
         }
-        stage('Archive Artifacts') {
-            steps {
-                echo 'Arquivando código-fonte (para deploy futuro)'
-                // 4. Arquiva o código-fonte (opcional, mas bom para CI/CD)
-                archiveArtifacts artifacts: 'src/**'
-            }
-        }
+        // ...
     }
-    // Opcional: Notificação de falha
-    post {
-        failure {
-            echo "Pipeline FALHOU! Revise os logs e os testes."
-            // Aqui você pode adicionar um slackSend ou email
-        }
-    }
+    // ...
 }
